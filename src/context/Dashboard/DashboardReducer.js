@@ -17,9 +17,15 @@ export const DashboardReducer = (state, action) => {
         let active = action.payload.filter(
             (dashboard) => dashboard.lastVisited === true
             )
+                        
+            if(active.length > 0){
+                active = active[0]
+                localStorage.setItem('dashboardKey', active.key)
+            } else {
+                active = null
+            }
+
             
-            active = active.length > 0 ? active[0] : null
-            localStorage.setItem('dashboardKey', active.key)
             return {
                 ...state,
                 dashboards: [...action.payload],

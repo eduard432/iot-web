@@ -9,10 +9,6 @@ import { Spinner } from '../Ui/Spinner'
 export const MainPage = () => {
 	const { dashboardState } = useContext(DashboardContext)
 
-	useEffect(() => {
-		console.log(dashboardState)
-	})
-
 	if (dashboardState.loading) {
 		return <Spinner />
 	}
@@ -20,8 +16,8 @@ export const MainPage = () => {
 	return (
 		<Flex direction={'column'} h={'full'}>
 			<Navbar />
-			<h1>Hello World</h1>
-			{/* {dashboardState.active ? <Dashboard /> : <ButtonSpan />} */}
+			{/* <h1>Hello World</h1> */}
+			{dashboardState.active ? <Dashboard /> : <ButtonSpan />}
 		</Flex>
 	)
 }

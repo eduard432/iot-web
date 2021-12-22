@@ -1,4 +1,5 @@
-import React, { createContext, useReducer } from 'react'
+import React, { createContext, useEffect, useReducer, useState } from 'react'
+import { getDashboardInfoService } from '../../services/Dashboard/Dashboard'
 import { DashboardReducer } from './DashboardReducer'
 
 export const DashboardContext = createContext()
@@ -15,12 +16,23 @@ export const DashboardProvider = ({ children }) => {
 		DashboardReducer,
 		initialState
 	)
+	
+	const [dashboard, setDashboard] = useState({})
+
+	useEffect(() => {
+		getDashboardInfoService().then(({ dashboard }) => {
+			console.log(dashboard)
+			setDashboard(dashboard)
+		})
+	}, [setDashboard])
 
 	return (
 		<DashboardContext.Provider
 			value={{
 				dashboardState,
-				dispatch
+				dispatch,
+				dashboard,
+				setDashboard
 			}}
 		>
 			{children}

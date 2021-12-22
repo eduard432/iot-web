@@ -2,7 +2,7 @@ const baseUrl = process.env.REACT_APP_API_URL
 
 export const fetchWithoutToken = async (endpoint, data, method = 'GET') => {
 
-    const url = `${baseUrl}/api/${endpoint}`
+    const url = `${baseUrl}/${endpoint}`
 
     if(method === 'GET') {
         const resp = await fetch(url)
@@ -23,7 +23,7 @@ export const fetchWithoutToken = async (endpoint, data, method = 'GET') => {
 
 export const fetchWithToken = async (endpoint, data, method = 'GET') => {
 
-    const url = `${baseUrl}/api/${endpoint}`
+    const url = `${baseUrl}/${endpoint}`
     const token = localStorage.getItem('token') || ''
     
     if(method === 'GET') {
@@ -40,7 +40,7 @@ export const fetchWithToken = async (endpoint, data, method = 'GET') => {
                 'Content-type': 'application/json',
                 'x-token': token
             },
-            body: JSON.stringify()
+            body: JSON.stringify(data)
         })
 
         return await resp.json()

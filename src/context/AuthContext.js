@@ -1,133 +1,155 @@
-import React, { useState, createContext, useCallback } from 'react'
-import { fetchWithoutToken, fetchWithToken } from '../helpers/fetch'
+import React, { useState, createContext, useCallback, useContext } from 'react'
+import {
+	loginService,
+	registerService,
+	renewService,
+} from '../services/Auth/Auth'
+import { getDashboardsService } from '../services/Dashboard/Dashboard'
+import { types } from '../types/TypesDashboard'
+import { DashboardContext } from './Dashboard/DashboardContext'
 
 export const AuthContext = createContext()
 
 const initialState = {
-    uid: null,
-    checking: false,
-    logged: false,
-    name: null,
-    email: null
+	uid: null,
+	checking: true,
+	logged: false,
+	name: null,
+	email: null,
 }
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider = ({ children }) => {
+	const [auth, setAuth] = useState(initialState)
+	const { dispatch } = useContext(DashboardContext)
 
-    const [auth, setAuth] = useState(initialState)
+	const login = async (userData) => {
+		const resp = await loginService(userData)
+		if (resp.ok) {
+			localStorage.setItem('token', resp.token)
+			const { user } = resp
+			
+			const { dashboards } = await getDashboardsService()
 
-    const login = async (email, password) => {
+			dispatch({
+				type: types.getDashboards,
+				payload: dashboards,
+			})
 
-        const resp = await fetchWithoutToken('auth/login', { email, password}, 'POST')
+			setAuth({
+				uid: user.uid,
+				checking: false,
+				logged: true,
+				name: user.name,
+				email: user.email,
+			})
 
-        if(resp.ok) {
-            localStorage.setItem('token', resp.token)
-            const { user } = resp
+			return true
+		}
 
-            setAuth({
-                uid: user.uid,
-                checking: false,
-                logged: true,
-                name: user.name,
-                email: user.email
-            })
+		return resp.msg
+	}
 
-        }
+	const register = async (userData) => {
+		const resp = await registerService(userData)
 
-        return  resp.ok
+		if (resp.ok) {
+			localStorage.setItem('token', resp.token)
+			const { user } = resp
 
-    }
+			const { dashboards } = await getDashboardsService()
 
-    const register = async (name, email, password) => {
+			dispatch({
+				type: types.getDashboards,
+				payload: dashboards,
+			})
 
-        const resp = await fetchWithoutToken('auth/register', {
-            name, email, password
-        }, 'POST')
+			setAuth({
+				uid: user.uid,
+				checking: false,
+				logged: true,
+				name: user.name,
+				email: user.email,
+			})
 
-        if(resp.ok) {
-            localStorage.setItem('token', resp.token)
-            const { user } = resp
+			return true
+		}
 
-            setAuth({
-                uid: user.uid,
-                checking: false,
-                logged: true,
-                name: user.name,
-                email: user.email
-            })
+		return resp.msg
+	}
 
-            return true
-            
-        }
+	const verifyToken = useCallback(async () => {
+		const token = localStorage.getItem('token')
 
-        return resp.msg
+		if (!token) {
+			setAuth({
+				uid: null,
+				checking: false,
+				logged: false,
+				name: null,
+				email: null,
+			})
 
-    }
+			return false
+		}
 
-    const verifyToken = useCallback( async () => {
+		const resp = await renewService()
 
-        const token = localStorage.getItem('token')
+		if (resp.ok) {
+			localStorage.setItem('token', resp.token)
 
-        if(!token) {
-            setAuth({
-                uid: null,
-                checking: false,
-                logged: false,
-                name: null,
-                email: null
-            })
+			const { user } = resp
+			const { dashboards } = await getDashboardsService()
 
-            return false
-        }
+			dispatch({
+				type: types.getDashboards,
+				payload: dashboards,
+			})
 
-        const resp = await fetchWithToken('login/renew')
+			setAuth({
+				uid: user.uid,
+				checking: false,
+				logged: true,
+				name: user.name,
+				email: user.email,
+			})
 
-        if(resp.ok) {
-            localStorage.setItem('token', resp.token)
+			return true
+		} else {
+			setAuth({
+				uid: null,
+				checking: false,
+				logged: false,
+				name: null,
+				email: null,
+			})
 
-            const { user } = resp
+			return false
+		}
+	}, [dispatch])
 
-            setAuth({
-                uid: user.uid,
-                checking: false,
-                looged: true,
-                name: user.name,
-                email: user.email
-            })
+	const logout = () => {
+		localStorage.removeItem('token')
+		localStorage.removeItem('dashboardKey')
 
-            return true
+		dispatch({ type: types.logout })
 
-        } else {
-            setAuth({
-                uid: null,
-                checking: false,
-                logged: false,
-                name: null,
-                email: null
-            })
+		setAuth({
+			checking: false,
+			logged: false,
+		})
+	}
 
-            return false
-        }
-
-    }, [])
-
-    const logout = () => {
-        localStorage.removeItem('token')
-        setAuth({
-            checking: false,
-            logged: false
-        })
-    }
-
-    return (
-        <AuthContext.Provider value={{
-            auth,
-            login,
-            register,
-            verifyToken,
-            logout
-        }}>
-            { children }
-        </AuthContext.Provider>
-    )
-
+	return (
+		<AuthContext.Provider
+			value={{
+				auth,
+				login,
+				register,
+				verifyToken,
+				logout,
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	)
 }

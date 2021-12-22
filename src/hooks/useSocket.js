@@ -1,54 +1,47 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react'
 import io from 'socket.io-client'
 
-const baseUrl = process.env.REACT_APP_API_URL
+export const useSocket = (baseUrl) => {
+	const [socket, setSocket] = useState(null)
+	const [online, setOnline] = useState(false)
 
-//TODO: envíar el key del dashboard activo
+	const connectSocket = useCallback(() => {
+		const token = localStorage.getItem('token')
+		const key = localStorage.getItem('dashboardKey')
 
-export const useSocket = () => {
+		const socketTemp = io.connect(baseUrl, {
+			transports: ['websocket'],
+			autoConnect: true,
+			forceNew: true,
+			query: {
+				'x-token': token,
+				'x-key': key,
+			},
+		})
 
-    const [socket, setSocket] = useState(null)
-    const [online, setOnline] = useState(false)
+		setSocket(socketTemp)
+	}, [baseUrl])
 
-    const connectSocket = useCallback(() => {
+	const disconnectSocket = useCallback(() => {
+		socket?.disconnect()
+	}, [socket])
 
-        const token = localStorage.getItmem('token')
+	useEffect(() => {
+		setOnline(socket?.connected)
+	}, [socket])
 
-        const socketTemp = io.connect(baseUrl, {
-            transports: ['websocket'],
-            autoConnect: true,
-            forceNew: true,
-            query: {
-                'x-token': token,
-                'x-key': 'Dashboard key'
-            }
-        })
+	useEffect(() => {
+		socket?.on('connect', () => setOnline(true))
+	}, [socket])
 
-        setSocket(socketTemp)
+	useEffect(() => {
+		socket?.on('disconnect', () => setOnline(false))
+	}, [socket])
 
-    }, [baseUrl])
-
-    const disconnectSocket = useCallback(() => {
-        socket?.disconnect()
-    }, [socket])
-
-    useEffect(() => {
-        setOnline(socket?.connected)
-    }, [socket])
-
-    useEffect(() => {
-        socket?.on('connect', () => setOnline(true))
-    }, [socket])
-
-    useEffect(() => {
-        socket?.on('disconnect', () => setOnline(false))
-    }, [socket])
-
-    return {
-        socket,
-        online,
-        connectSocket,
-        disconnectSocket
-    }
-
+	return {
+		socket,
+		online,
+		connectSocket,
+		disconnectSocket,
+	}
 }

@@ -9,7 +9,7 @@ export const DashboardReducer = (state, action) => {
                 dashboards: {},
                 active: null,
                 loading: true,
-                dashboard: null
+                msg: undefined
             }
 
         case types.getDashboards: 
@@ -44,6 +44,36 @@ export const DashboardReducer = (state, action) => {
                 ...state,
                 dashboard: action.payload
             }
+
+        case types.setMsg: {
+
+            const msg = action.payload.map(({data}) => ({...data}))
+
+            return {
+                ...state,
+                msg: msg.reverse()
+            }
+        }
+
+        case types.addMsg: {
+
+            const msg = state.msg
+
+            if(state.msg.length > 9) {
+                
+                msg.unshift(action.payload)
+                msg.pop()
+
+            } else {
+                msg.unshift(action.payload)
+            }
+            
+            return {
+                ...state,
+                msg
+            }
+        }
+
         default: 
             return {
                 ...state

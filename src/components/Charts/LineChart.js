@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -10,10 +10,10 @@ import {
 	Legend,
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
-import faker from 'faker'
+import moment from 'moment'
 
 import { Widget } from '../Ui/Widget'
-import { options } from './options'
+import { DashboardContext } from '../../context/Dashboard/DashboardContext'
 
 ChartJS.register(
 	CategoryScale,
@@ -25,25 +25,59 @@ ChartJS.register(
 	Legend
 )
 
-const labels = [
-	'January',
-	'February',
-	'March',
-	'April',
-	'May',
-	'June',
-	'July',
-]
+export const LineChart = ({ name, data, wKey }) => {
+	const { msg } = useContext(DashboardContext)
 
-export const LineChart = ({ name, data }) => {
+	const [labels, setLabels] = useState([])
+	const [dataSet, setDataSet] = useState([])
+
+	useEffect(() => {
+		if (msg !== []) {
+			const times = msg.map(({ time }) =>
+				moment(time).format('DD/MM/YYYY - HH:mm:ss')
+			)
+			setLabels(times)
+		}
+	}, [msg])
+
+	useEffect(() => {
+		if (msg !== []) {
+			const data = msg.map((msg) => msg[wKey])
+			setDataSet(data)
+		}
+	}, [msg, wKey])
+
+	const options = {
+		responsive: true,
+		plugins: {
+			legend: {
+				position: 'bottom',
+			},
+			title: {
+				display: true,
+				text: name,
+			},
+		},
+		scales: {
+			x: {
+				display: false,
+			},
+			y: {
+				display: false,
+			},
+		},
+	}
+
 	const dataConfig = {
 		labels,
 		friction: 0.9,
 
-		datasets: data.map(({ bgColor, label, color }) => ({
+		datasets: data.map(({ bgColor, label, color, name }) => ({
 			label,
 			backgroundColor: bgColor,
-			data: labels.map(() => faker.datatype.number({ min: 0, max: 1000 })),
+			data: dataSet.map((obj) => {
+				return obj?.[name]
+			}),
 			borderColor: color,
 		})),
 		/* datasets: [
@@ -70,7 +104,7 @@ export const LineChart = ({ name, data }) => {
 		<Widget>
 			<Line
 				data={dataConfig}
-				options={() => options(name)}
+				options={options}
 				style={{ maxHeight: '100%' }}
 			/>
 		</Widget>

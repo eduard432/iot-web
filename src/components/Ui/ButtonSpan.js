@@ -1,7 +1,7 @@
 import React from 'react'
 import { Flex, Button } from '@chakra-ui/react'
 
-export const ButtonSpan = () => {
+export const ButtonSpan = ({title}) => {
 	return (
 		<Flex flexGrow={1} justifyContent={'center'} alignItems={'center'}>
 			<Button
@@ -9,7 +9,7 @@ export const ButtonSpan = () => {
 				_hover={{ bgColor: 'blue.700' }}
 				color="white"
 			>
-				Create Dashboard
+				{title}
 			</Button>
 		</Flex>
 	)

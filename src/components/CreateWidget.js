@@ -19,7 +19,6 @@ import { useForm } from '../hooks/useForm'
 import { createWidgetService } from '../services/Dashboard/Dashboard'
 
 import { DashboardContext } from '../context/Dashboard/DashboardContext'
-import { types } from '../types/TypesDashboard'
 
 const initialState = {
 	name: '',
@@ -28,15 +27,12 @@ const initialState = {
 
 export const CreateWidget = ({ isOpen, onClose }) => {
 	const [formValues, handleInputChange, reset] = useForm(initialState)
-	const { dispatch } = useContext(DashboardContext)
+	const { setDashboard } = useContext(DashboardContext)
 
 	const handleClick = async () => {
 		if(formValues.name.length) {
-			const resp = await createWidgetService(formValues)
-			dispatch({
-				type: types.createWidget,
-				payload: resp.dashboard
-			})
+			const { dashboard } = await createWidgetService(formValues)
+			setDashboard(dashboard)
 			reset()
 			onClose()
 		}

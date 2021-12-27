@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useReducer, useState } from 'react'
-import { getDashboardInfoService } from '../../services/Dashboard/Dashboard'
+import { getDashboardInfoService, getMessages } from '../../services/Dashboard/Dashboard'
 import { DashboardReducer } from './DashboardReducer'
 
 export const DashboardContext = createContext()
@@ -8,7 +8,7 @@ const initialState = {
 	dashboards: {},
 	active: null,
 	loading: true,
-	dashboard: null
+	msg: undefined
 }
 
 export const DashboardProvider = ({ children }) => {
@@ -18,13 +18,30 @@ export const DashboardProvider = ({ children }) => {
 	)
 	
 	const [dashboard, setDashboard] = useState({})
+	const [msg, setMsg] = useState([])
 
 	useEffect(() => {
-		getDashboardInfoService().then(({ dashboard }) => {
-			console.log(dashboard)
-			setDashboard(dashboard)
-		})
-	}, [setDashboard])
+
+		const key = localStorage.getItem('dashboardKey')
+
+		if(key) {
+			getDashboardInfoService().then(({ dashboard }) => {
+				setDashboard(dashboard)
+			})
+		}
+
+	},[setDashboard])
+
+	useEffect(() => {
+		const key = localStorage.getItem('dashboardKey')
+		if(key) {
+			getMessages().then((resp) => {
+				// console.log(resp)
+				const messages = resp.msg.map(({data}) => ({...data})).reverse()
+				setMsg(messages)
+			})
+		}
+	},[])
 
 	return (
 		<DashboardContext.Provider
@@ -32,7 +49,9 @@ export const DashboardProvider = ({ children }) => {
 				dashboardState,
 				dispatch,
 				dashboard,
-				setDashboard
+				setDashboard,
+				msg,
+				setMsg
 			}}
 		>
 			{children}

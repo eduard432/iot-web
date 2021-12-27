@@ -38,3 +38,16 @@ export const createWidgetService = async ({ name, type }) => {
 	)
 	return resp
 }
+
+export const getMessages = async () => {
+	const key = localStorage.getItem('dashboardKey')
+	const resp = await fetchWithToken(
+		'msg',
+		{
+			key
+		},
+		'POST'
+	)
+
+	return resp
+}

@@ -1,17 +1,25 @@
-import React, { useCallback, useContext, useEffect } from 'react'
+import React, { useContext } from 'react'
 import { Flex, Grid } from '@chakra-ui/react'
 import { DashboardContext } from '../context/Dashboard/DashboardContext'
 
 import { Chart } from './Ui/Chart'
-import { getDashboardInfoService } from '../services/Dashboard/Dashboard'
-import { types } from '../types/TypesDashboard'
+import { ButtonSpan } from './Ui/ButtonSpan'
+import { Spinner } from './Ui/Spinner'
 
 export const Dashboard = () => {
-	const { dashboard,  } = useContext(DashboardContext)
+	const { dashboard } = useContext(DashboardContext)
 
-	useEffect(() => {
-		console.log(dashboard)
-	}, [dashboard])
+	/* useEffect(() => {
+		console.log(dashboard.widgets)
+	}, [dashboard]) */
+
+	if(dashboard.widgets === undefined) {
+		return <Spinner />
+	}
+
+	if (!dashboard?.widgets.length > 0) {
+		return <ButtonSpan title="Create Widget" />
+	}
 
 	return (
 		<Flex flexGrow={1} p={{ base: 4, md: 8 }}>
@@ -26,13 +34,10 @@ export const Dashboard = () => {
 				gap={4}
 				autoRows={''}
 			>
-				{/* {
-					dashboard.widgets.map(({ key, type, ...props }) => (
+				{dashboard.widgets.map(({ key, type, ...props }) => (
 					<Chart key={key} wKey={key} type={type} {...props} />
-					))
-				} */}
+				))}
 			</Grid>
 		</Flex>
-		//<h1>Hola mundo</h1>
 	)
 }

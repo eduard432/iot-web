@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
 
 import { useSocket } from '../hooks/useSocket'
 import { DashboardContext } from './Dashboard/DashboardContext'
@@ -7,29 +7,53 @@ export const SocketContext = createContext()
 
 export const SocketProvider = ({ children }) => {
 
-	const { dashboardState } = useContext(DashboardContext)
-	const { socket, connectSocket, disconnectSocket } = useSocket(
+	const { msg, setMsg, dashboard } = useContext(DashboardContext)
+	const { socket, connectSocket, online } = useSocket(
 		'http://192.168.1.68:8080'
 	)
-	const [msg, setMsg] = useState({})
 
-	useEffect(() => {
-		if(dashboardState.dashboard) {
+	/* useEffect(() => {
+		const key = localStorage.getItem('dashboardKey')
+		if(key) {
 			connectSocket()
 		}
-	},[dashboardState, connectSocket])
+	},[connectSocket]) */
 
 	useEffect(() => {
-		socket?.on('new-msg', (msg) => {
-			setMsg(msg)
-		})
-		return () => {
-			disconnectSocket()
+		if(Object.keys(dashboard).length !== 0) {
+			connectSocket()
 		}
-	}, [socket, disconnectSocket])
+	}, [connectSocket, dashboard]) 
+
+	useEffect(() => {
+		const listener = (payload) => {
+			if(msg !== []) {
+				setMsg((previoustMessages) => {
+					if(previoustMessages.length > 9) {
+						previoustMessages.unshift(payload)
+						previoustMessages.pop()
+					} else {
+						previoustMessages.unshift(payload)
+
+					}
+
+					return [...previoustMessages]
+				})
+			}
+		}
+		
+		if(online) {
+
+			socket.on('new-msg', (payload) => {
+				console.log(payload)
+				listener(payload)
+			})
+		}
+
+	}, [socket, msg, setMsg, online])
 
 	return (
-		<SocketContext.Provider value={{ socket, msg }}>
+		<SocketContext.Provider value={{ socket }}>
 			{children}
 		</SocketContext.Provider>
 	)

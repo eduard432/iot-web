@@ -1,4 +1,4 @@
-const baseUrl = process.env.REACT_APP_API_URL
+const baseUrl = `${process.env.REACT_APP_API_URL}/api` || 'http://http://192.168.100.93:8080/api'
 
 export const fetchWithoutToken = async (endpoint, data, method = 'GET') => {
 

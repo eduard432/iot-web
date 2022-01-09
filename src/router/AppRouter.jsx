@@ -11,7 +11,6 @@ import { MainPage } from '../components/Pages/MainPage'
 
 import { Flex, Box } from '@chakra-ui/react'
 import { LoginPage } from '../components/Pages/LoginPage'
-import { RegisterPage } from '../components/Pages/RegisterPage'
 import { startCheckingAuth } from '../actions/authActions'
 
 import { useSocket } from '../hooks/useSocket'
@@ -24,13 +23,13 @@ export const AppRouter = () => {
 	const { connectSocket, disconnectSocket, online } = useSocket(active?.key)
 
 	useEffect(() => {
-		if(active) {
+		if (active) {
 			connectSocket()
-			if(online) {
+			if (online) {
 				disconnectSocket()
 			}
 		}
-	}, [connectSocket, active ])
+	}, [connectSocket, active])
 
 	useEffect(() => {
 		dispatch(startCheckingAuth())
@@ -56,20 +55,6 @@ export const AppRouter = () => {
 							</PublicRoute>
 						}
 					/>
-
-					<Route
-						path="/register"
-						element={
-							<PublicRoute>
-								<Flex h="full" alignItems="center" justifyContent="center">
-									<Box boxShadow="lg" rounded="md" p="3.5">
-										<RegisterPage />
-									</Box>
-								</Flex>
-							</PublicRoute>
-						}
-					/>
-
 					<Route
 						path="/home"
 						element={

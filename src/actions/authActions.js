@@ -1,11 +1,11 @@
-import { loginService, registerService, renewService } from '../services/Auth/authServices'
+import { loginService, renewService } from '../services/Auth/authServices'
 import { authTypes } from '../types/authTypes'
 import Swal from 'sweetalert2'
 import { logoutDashboards } from './dashboardActions'
 
-export const startLogin = (userValues) => {
+export const startLogin = () => {
 	return async (dispatch) => {
-		const { user, ok, msg, token } = await loginService(userValues)
+		const { user, ok, msg, token } = await loginService()
 
 		if (ok) {
 			localStorage.setItem('token', token)
@@ -20,25 +20,6 @@ export const startLogin = (userValues) => {
 			Swal.fire('Error', msg, 'error')
 		}
 	}
-}
-
-export const startRegister = (userValues) => {
-    return async (dispatch) => {
-
-        const { ok, user, token } = await registerService(userValues)
-
-        if(ok) {
-            localStorage.setItem('token', token)
-
-            dispatch(login({
-                uid: user.uid,
-                name: user.name
-            }))
-        } else {
-            Swal.fire('Error', user.msg, 'error')
-        }
-
-    }
 }
 
 export const startCheckingAuth = () => {
@@ -73,4 +54,4 @@ export const startLogout = () => {
 	}
 }
 
-export const logout = () => ({type: authTypes.logout})
+export const logout = () => ({ type: authTypes.logout })

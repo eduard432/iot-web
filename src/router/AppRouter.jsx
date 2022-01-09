@@ -40,7 +40,10 @@ export const AppRouter = () => {
 	}
 
 	return (
-		<chakra.div h="full">
+		<chakra.div
+			h="full"
+			bgGradient={'linear(red.100 0%, orange.100 25%, yellow.100 50%)'}
+		>
 			<BrowserRouter>
 				<Routes>
 					<Route
@@ -48,7 +51,7 @@ export const AppRouter = () => {
 						element={
 							<PublicRoute>
 								<Flex h="full" alignItems="center" justifyContent="center">
-									<Box boxShadow="lg" rounded="md" p="3.5">
+									<Box>
 										<LoginPage />
 									</Box>
 								</Flex>

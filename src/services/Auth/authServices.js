@@ -1,10 +1,10 @@
 import { fetchWithoutToken, fetchWithToken } from '../../helpers/fetch'
 
-export const loginService = async ({ email, password }) => {
+export const loginService = async (publicAddress, message) => {
 	try {
 		const resp = await fetchWithoutToken(
 			'auth/login',
-			{ email, password },
+			{ publicAddress, message },
 			'POST'
 		)
 		return resp
@@ -12,20 +12,6 @@ export const loginService = async ({ email, password }) => {
 		console.log(error)
 		return { ok: false }
 	}
-}
-
-export const registerService = async ({ email, password1, name }) => {
-	const resp = await fetchWithoutToken(
-		'auth/register',
-		{
-			name,
-			email,
-			password: password1,
-		},
-		'POST'
-	)
-
-	return resp
 }
 
 export const renewService = async () => {
